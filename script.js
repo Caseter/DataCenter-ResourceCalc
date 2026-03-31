@@ -3,10 +3,10 @@ class IOPSCalculator {
     constructor() {
         // Define server types with their IOPS values
         this.serverTypes = {
-            'System X': { name: 'System X', iops_1u: 5000, iops_2u: 12000, cost_1u: 400, cost_2u: 1600 },
-            'RISC': { name: 'RISC', iops_1u: 5000, iops_2u: 12000, cost_1u: 450, cost_2u: 1750 },
-            'Mainframe': { name: 'Mainframe', iops_1u: 5000, iops_2u: 12000, cost_1u: 850, cost_2u: 2000 },
-            'GPU': { name: 'GPU', iops_1u: 5000, iops_2u: 12000, cost_1u: 550, cost_2u: 2200 }
+            'System X': { name: 'System X', iops_3u: 5000, iops_7u: 12000, cost_3u: 400, cost_7u: 1600 },
+            'RISC': { name: 'RISC', iops_3u: 5000, iops_7u: 12000, cost_3u: 450, cost_7u: 1750 },
+            'Mainframe': { name: 'Mainframe', iops_3u: 5000, iops_7u: 12000, cost_3u: 850, cost_7u: 2000 },
+            'GPU': { name: 'GPU', iops_3u: 5000, iops_7u: 12000, cost_3u: 550, cost_7u: 2200 }
         };
 
         this.requirements = [];
@@ -70,48 +70,48 @@ class IOPSCalculator {
             return null;
         }
 
-        // If target is less than 12k IOPS, use 1U servers only
+        // If target is less than 12k IOPS, use 3U servers only
         if (targetIops < 12000) {
-            const count1U = Math.ceil(targetIops / 5000);
-            const cost1U = count1U * server.cost_1u;
+            const count3U = Math.ceil(targetIops / 5000);
+            const cost3U = count3U * server.cost_3u;
             return {
                 type: serverType,
-                count2U: 0,
-                count1U: count1U,
-                totalIops: count1U * server.iops_1u,
-                totalRackSpace: count1U * 1,
-                totalPorts: count1U,
-                cost1U: cost1U,
-                cost2U: 0,
-                totalCost: cost1U,
-                isExact: (count1U * server.iops_1u === targetIops),
-                exceeded: (count1U * server.iops_1u > targetIops)
+                count7U: 0,
+                count3U: count3U,
+                totalIops: count3U * server.iops_3u,
+                totalRackSpace: count3U * 3,
+                totalPorts: count3U,
+                cost3U: cost3U,
+                cost7U: 0,
+                totalCost: cost3U,
+                isExact: (count3U * server.iops_3u === targetIops),
+                exceeded: (count3U * server.iops_3u > targetIops)
             };
         }
 
-        // For targets >= 12k, maximize 2U usage first
-        const count2U = Math.floor(targetIops / 12000);
-        const remainingIops = targetIops - (count2U * 12000);
+        // For targets >= 12k, maximize 7U usage first
+        const count7U = Math.floor(targetIops / 12000);
+        const remainingIops = targetIops - (count7U * 12000);
 
-        // Add 1U servers to cover remaining IOPS
-        const count1U = Math.ceil(remainingIops / 5000);
-        const totalPorts = count2U + count1U;
-        const cost2U = count2U * server.cost_2u;
-        const cost1U = count1U * server.cost_1u;
-        const totalCost = cost2U + cost1U;
+        // Add 3U servers to cover remaining IOPS
+        const count3U = Math.ceil(remainingIops / 5000);
+        const totalPorts = count7U + count3U;
+        const cost7U = count7U * server.cost_7u;
+        const cost3U = count3U * server.cost_3u;
+        const totalCost = cost7U + cost3U;
 
         return {
             type: serverType,
-            count2U: count2U,
-            count1U: count1U,
-            totalIops: (count2U * server.iops_2u) + (count1U * server.iops_1u),
-            totalRackSpace: (count2U * 2) + (count1U * 1),
+            count7U: count7U,
+            count3U: count3U,
+            totalIops: (count7U * server.iops_7u) + (count3U * server.iops_3u),
+            totalRackSpace: (count7U * 7) + (count3U * 3),
             totalPorts: totalPorts,
-            cost1U: cost1U,
-            cost2U: cost2U,
+            cost3U: cost3U,
+            cost7U: cost7U,
             totalCost: totalCost,
-            isExact: ((count2U * server.iops_2u) + (count1U * server.iops_1u) === targetIops),
-            exceeded: ((count2U * server.iops_2u) + (count1U * server.iops_1u) > targetIops)
+            isExact: ((count7U * server.iops_7u) + (count3U * server.iops_3u) === targetIops),
+            exceeded: ((count7U * server.iops_7u) + (count3U * server.iops_3u) > targetIops)
         };
     }
 
@@ -133,16 +133,16 @@ class IOPSCalculator {
         // Build result cards
         const resultsHTML = solutions.map(sol => {
             const solutionItems = `
-                ${sol.solution.count2U > 0 ? `
+                ${sol.solution.count7U > 0 ? `
                 <div class="solution-item">
-                    <div class="solution-item-name">${this.escapeHtml(sol.solution.type)} - 2U</div>
-                    <div class="solution-item-count">${sol.solution.count2U}</div>
+                    <div class="solution-item-name">${this.escapeHtml(sol.solution.type)} - 7U</div>
+                    <div class="solution-item-count">${sol.solution.count7U}</div>
                 </div>
                 ` : ''}
-                ${sol.solution.count1U > 0 ? `
+                ${sol.solution.count3U > 0 ? `
                 <div class="solution-item">
-                    <div class="solution-item-name">${this.escapeHtml(sol.solution.type)} - 1U</div>
-                    <div class="solution-item-count">${sol.solution.count1U}</div>
+                    <div class="solution-item-name">${this.escapeHtml(sol.solution.type)} - 3U</div>
+                    <div class="solution-item-count">${sol.solution.count3U}</div>
                 </div>
                 ` : ''}
             `;
@@ -159,16 +159,16 @@ class IOPSCalculator {
                 </div>
                 <div class="results-summary">
                     <div class="summary-row">
-                        <span>2U:</span>
-                        <strong>${sol.solution.count2U}</strong>
+                        <span>7U:</span>
+                        <strong>${sol.solution.count7U}</strong>
                     </div>
                     <div class="summary-row">
-                        <span>1U:</span>
-                        <strong>${sol.solution.count1U}</strong>
+                        <span>3U:</span>
+                        <strong>${sol.solution.count3U}</strong>
                     </div>
                     <div class="summary-row">
                         <span>Total Servers:</span>
-                        <strong>${sol.solution.count2U + sol.solution.count1U}</strong>
+                        <strong>${sol.solution.count7U + sol.solution.count3U}</strong>
                     </div>
                     <div class="summary-row">
                         <span>Ports:</span>
@@ -183,12 +183,12 @@ class IOPSCalculator {
                         <strong>${sol.solution.totalIops.toLocaleString()}</strong>
                     </div>
                     <div class="summary-row">
-                        <span>Cost (1U):</span>
-                        <strong>$${sol.solution.cost1U.toLocaleString()}</strong>
+                        <span>Cost (3U):</span>
+                        <strong>$${sol.solution.cost3U.toLocaleString()}</strong>
                     </div>
                     <div class="summary-row">
-                        <span>Cost (2U):</span>
-                        <strong>$${sol.solution.cost2U.toLocaleString()}</strong>
+                        <span>Cost (7U):</span>
+                        <strong>$${sol.solution.cost7U.toLocaleString()}</strong>
                     </div>
                     <div class="summary-row">
                         <span>Total Cost:</span>
@@ -204,24 +204,24 @@ class IOPSCalculator {
 
         // Calculate and display totals
         const totals = {
-            count2U: 0,
-            count1U: 0,
+            count7U: 0,
+            count3U: 0,
             ports: 0,
             rackSpace: 0,
             cost: 0
         };
 
         solutions.forEach(sol => {
-            totals.count2U += sol.solution.count2U;
-            totals.count1U += sol.solution.count1U;
+            totals.count7U += sol.solution.count7U;
+            totals.count3U += sol.solution.count3U;
             totals.ports += sol.solution.totalPorts;
             totals.rackSpace += sol.solution.totalRackSpace;
             totals.cost += sol.solution.totalCost;
         });
 
-        const totalServers = totals.count2U + totals.count1U;
-        document.getElementById('totalCount2U').textContent = totals.count2U;
-        document.getElementById('totalCount1U').textContent = totals.count1U;
+        const totalServers = totals.count7U + totals.count3U;
+        document.getElementById('totalCount7U').textContent = totals.count7U;
+        document.getElementById('totalCount3U').textContent = totals.count3U;
         document.getElementById('totalAllServers').textContent = totalServers;
         document.getElementById('totalPorts').textContent = totals.ports;
         document.getElementById('totalRack').textContent = `${totals.rackSpace} U`;

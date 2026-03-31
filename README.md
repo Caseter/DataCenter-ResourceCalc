@@ -1,13 +1,13 @@
 # DataCenter-ResourceCalc
 
-A quick resource/IOPS calculator for the Data Center game. Define multiple server type requirements with their IOPS targets, and the system automatically calculates the optimal combination of 1U and 2U servers needed for each type, displayed side-by-side.
+A quick resource/IOPS calculator for the Data Center game. Define multiple server type requirements with their IOPS targets, and the system automatically calculates the optimal combination of 3U and 7U servers needed for each type, displayed side-by-side.
 
 ## Features
 
 - **Multiple Requirements**: Add multiple server types at once (System X, RISC, Mainframe, GPU) each with their own IOPS targets
 - **Smart Optimization**: 
-  - Maximizes 2U server usage for space efficiency (provides 12,000 IOPS each)
-  - Supplements with 1U servers when needed (provides 5,000 IOPS each)
+  - Maximizes 7U server usage for space efficiency (provides 12,000 IOPS each)
+  - Supplements with 3U servers when needed (provides 5,000 IOPS each)
   - Automatically calculates exact or minimal-overage combinations
 - **Port Count**: Automatically calculates ports required (1 port per server)
 - **Total Aggregation**: See combined totals across all requirements
@@ -25,7 +25,7 @@ A quick resource/IOPS calculator for the Data Center game. Define multiple serve
 
 3. **View Results**:
    - Each server type shows in its own card with:
-     - Number of 2U and 1U servers needed
+     - Number of 7U and 3U servers needed
      - Total servers and ports required
      - Rack space needed
      - Total IOPS provisioned
@@ -36,28 +36,28 @@ A quick resource/IOPS calculator for the Data Center game. Define multiple serve
 
 The calculator uses a space-efficient algorithm for each requirement:
 
-1. **For targets < 12,000 IOPS**: Uses only 1U servers
+1. **For targets < 12,000 IOPS**: Uses only 3U servers
 2. **For targets ≥ 12,000 IOPS**: 
-   - Fills as much as possible with 2U servers first (12,000 IOPS each)
-   - Adds 1U servers (5,000 IOPS each) to cover any remaining IOPS needed
+   - Fills as much as possible with 7U servers first (12,000 IOPS each)
+   - Adds 3U servers (5,000 IOPS each) to cover any remaining IOPS needed
 3. **Result**: Always minimizes rack space while meeting or slightly exceeding IOPS target
 
 ### Example Calculations
 
-- Target: 5,000 IOPS → 1× 1U server → 1 port
-- Target: 12,000 IOPS → 1× 2U server → 1 port
-- Target: 17,000 IOPS → 1× 2U + 1× 1U (total: 17,000 IOPS) → 2 ports
-- Target: 30,000 IOPS → needs 2× 2U + 2× 1U (total: 34,000 IOPS) → 4 ports
+- Target: 5,000 IOPS → 1× 3U server → 3U rack space, 1 port
+- Target: 12,000 IOPS → 1× 7U server → 7U rack space, 1 port
+- Target: 17,000 IOPS → 1× 7U + 1× 3U (total: 17,000 IOPS) → 10U rack space, 2 ports
+- Target: 30,000 IOPS → needs 2× 7U + 2× 3U (total: 34,000 IOPS) → 20U rack space, 4 ports
 
 ### Port Counting
-- 1 port required per server, regardless of size (1U or 2U)
-- Total ports = 2U servers + 1U servers
+- 1 port required per server, regardless of size (3U or 7U)
+- Total ports = 7U servers + 3U servers
 
 ## Server Specifications
 
 All server types (System X, RISC, Mainframe, GPU) have the same IOPS capabilities:
-- **1U Server**: 5,000 IOPS, 1U of rack space, 1 port
-- **2U Server**: 12,000 IOPS, 2U of rack space, 1 port
+- **3U Server**: 5,000 IOPS, 3U of rack space, 1 port
+- **7U Server**: 12,000 IOPS, 7U of rack space, 1 port
 
 ## License
 
