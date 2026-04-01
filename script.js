@@ -98,7 +98,20 @@ class IOPSCalculator {
         const totalPorts = count7U + count3U;
         const cost7U = count7U * server.cost_7u;
         const cost3U = count3U * server.cost_3u;
-        const totalCost = cost7U + cost3U;
+        
+        let totalSpace = (count7U * 7) + (count3U * 3);
+        let totalRacks = 0;
+        do {
+            if (totalSpace >= 47) {
+                totalRacks++;
+                totalSpace -= 47;
+            } else if (totalSpace <= 46 && totalSpace >= 1) {
+                totalRacks++;
+                totalSpace -= totalSpace;
+            }
+        } while (totalSpace >= 1);
+
+        const totalCost = cost7U + cost3U + (totalRacks * 1250);
 
         return {
             type: serverType,
@@ -106,6 +119,7 @@ class IOPSCalculator {
             count3U: count3U,
             totalIops: (count7U * server.iops_7u) + (count3U * server.iops_3u),
             totalRackSpace: (count7U * 7) + (count3U * 3),
+            totalRacks: totalRacks,
             totalPorts: totalPorts,
             cost3U: cost3U,
             cost7U: cost7U,
@@ -179,8 +193,21 @@ class IOPSCalculator {
                         <strong>${sol.solution.totalRackSpace} U</strong>
                     </div>
                     <div class="summary-row">
+                        <span>Total Racks:</span>
+                        <strong>${sol.solution.totalRacks}x</strong>
+                    </div>
+                    <div class="summary-row">
                         <span>Total IOPS:</span>
                         <strong>${sol.solution.totalIops.toLocaleString()}</strong>
+                    </div>
+                    <div class="summary-row">
+                        <br>
+                    </div>
+                    <div class="summary-row">
+                        <br>
+                    </div>
+                    <div class="summary-row">
+                        <br>
                     </div>
                     <div class="summary-row">
                         <span>Cost (3U):</span>
@@ -189,6 +216,10 @@ class IOPSCalculator {
                     <div class="summary-row">
                         <span>Cost (7U):</span>
                         <strong>$${sol.solution.cost7U.toLocaleString()}</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Cost (Racks):</span>
+                        <strong>$${(sol.solution.totalRacks * 1250).toLocaleString()} ($1250 per rack)</strong>
                     </div>
                     <div class="summary-row">
                         <span>Total Cost:</span>
@@ -208,6 +239,7 @@ class IOPSCalculator {
             count3U: 0,
             ports: 0,
             rackSpace: 0,
+            racksQuantity: 0,
             cost: 0
         };
 
@@ -216,6 +248,7 @@ class IOPSCalculator {
             totals.count3U += sol.solution.count3U;
             totals.ports += sol.solution.totalPorts;
             totals.rackSpace += sol.solution.totalRackSpace;
+            totals.racksQuantity += sol.solution.totalRacks;
             totals.cost += sol.solution.totalCost;
         });
 
@@ -225,10 +258,14 @@ class IOPSCalculator {
         document.getElementById('totalAllServers').textContent = totalServers;
         document.getElementById('totalPorts').textContent = totals.ports;
         document.getElementById('totalRack').textContent = `${totals.rackSpace} U`;
+        document.getElementById('totalRacks').textContent = `${totals.racksQuantity}x` + " ($1250 per rack)";
         document.getElementById('totalCost').textContent = `$${totals.cost.toLocaleString()}`;
 
         document.getElementById('totalsSummary').style.display = 'block';
         resultsContainer.style.display = 'block';
+
+        document.getElementById('calculateBtn').style.display = 'none';
+        document.getElementById('clearBtn').style.display = 'inline-block';
     }
 
     initializeEventListeners() {
