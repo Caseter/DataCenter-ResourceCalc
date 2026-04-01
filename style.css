@@ -1,4 +1,4 @@
-﻿* { box-sizing: border-box; }
+* { box-sizing: border-box; }
 body {
     margin: 0;
     font-family: Inter, Arial, Helvetica, sans-serif;
@@ -22,6 +22,7 @@ header p { margin: 0 0 24px; color: #9ab1cc; }
 .button-row button { padding: 10px 14px; border: 1px solid #5a708f; border-radius: 6px; color: #fff; background: #263b5c; cursor: pointer; font-weight: 700; transition: all 150ms ease; }
 .button-row button:hover { transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.35); }
 .button-row button.primary { background: #2e77ff; border-color: #3d8aff; }
+.button-row button.clear { background: #dc3545; border-color: #dc3545; }
 .list .requirement-item { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(100,130,168,0.3); padding: 10px 0; }
 .requirement-item-info { display: flex; flex-direction: column; }
 .requirement-item-type { font-size: 1rem; font-weight: 700; color: #eff6ff; }
