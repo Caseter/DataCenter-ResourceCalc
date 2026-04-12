@@ -1,6 +1,9 @@
 // IOPS Calculator for DataCenter game
 class IOPSCalculator {
     constructor() {
+        this.bandwidthGbps7U = 0.6;
+        this.bandwidthGbps3U = 0.25;
+
         // Define server types with their IOPS values
         this.serverTypes = {
             'System X': { name: 'System X', iops_3u: 5000, iops_7u: 12000, cost_3u: 400, cost_7u: 1600 },
@@ -73,14 +76,16 @@ class IOPSCalculator {
         // If target is less than 12k IOPS, use 3U servers only
         if (targetIops < 12000) {
             const count3U = Math.ceil(targetIops / 5000);
+            const count7U = 0;
             const cost3U = count3U * server.cost_3u;
             return {
                 type: serverType,
-                count7U: 0,
-                count3U: count3U,
+                count7U,
+                count3U,
                 totalIops: count3U * server.iops_3u,
                 totalRackSpace: count3U * 3,
                 totalPorts: count3U,
+                totalBandwidthGbps: count7U * this.bandwidthGbps7U + count3U * this.bandwidthGbps3U,
                 cost3U: cost3U,
                 cost7U: 0,
                 totalCost: cost3U,
@@ -107,6 +112,7 @@ class IOPSCalculator {
             totalIops: (count7U * server.iops_7u) + (count3U * server.iops_3u),
             totalRackSpace: (count7U * 7) + (count3U * 3),
             totalPorts: totalPorts,
+            totalBandwidthGbps: count7U * this.bandwidthGbps7U + count3U * this.bandwidthGbps3U,
             cost3U: cost3U,
             cost7U: cost7U,
             totalCost: totalCost,
@@ -175,6 +181,10 @@ class IOPSCalculator {
                         <strong>${sol.solution.totalPorts}</strong>
                     </div>
                     <div class="summary-row">
+                        <span>Bandwidth:</span>
+                        <strong>${sol.solution.totalBandwidthGbps.toFixed(2)} Gbps</strong>
+                    </div>
+                    <div class="summary-row">
                         <span>Rack Space:</span>
                         <strong>${sol.solution.totalRackSpace} U</strong>
                     </div>
@@ -207,6 +217,7 @@ class IOPSCalculator {
             count7U: 0,
             count3U: 0,
             ports: 0,
+            bandwidthGbps: 0,
             rackSpace: 0,
             cost: 0
         };
@@ -215,6 +226,7 @@ class IOPSCalculator {
             totals.count7U += sol.solution.count7U;
             totals.count3U += sol.solution.count3U;
             totals.ports += sol.solution.totalPorts;
+            totals.bandwidthGbps += sol.solution.totalBandwidthGbps;
             totals.rackSpace += sol.solution.totalRackSpace;
             totals.cost += sol.solution.totalCost;
         });
@@ -224,6 +236,7 @@ class IOPSCalculator {
         document.getElementById('totalCount3U').textContent = totals.count3U;
         document.getElementById('totalAllServers').textContent = totalServers;
         document.getElementById('totalPorts').textContent = totals.ports;
+        document.getElementById('totalBandwidth').textContent = `${totals.bandwidthGbps.toFixed(2)} Gbps`;
         document.getElementById('totalRack').textContent = `${totals.rackSpace} U`;
         document.getElementById('totalCost').textContent = `$${totals.cost.toLocaleString()}`;
 
